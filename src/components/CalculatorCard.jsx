@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './CalculatorCard.css';
 
-export default function CalculatorCard({ onCalculate, result }) {
+export default function CalculatorCard({ onCalculate, result, initialCarbos }) {
   const [glucosa, setGlucosa] = useState('');
   const [carbohidratos, setCarbohidratos] = useState('');
+
+  useEffect(() => {
+    if (initialCarbos) {
+      setCarbohidratos(initialCarbos);
+    }
+  }, [initialCarbos]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,7 +18,7 @@ export default function CalculatorCard({ onCalculate, result }) {
 
   return (
     <div className="card">
-      <h2 className="card-title">Calculadora de Dosis</h2>
+      <h2 className="card-title">🩺 Calculadora de Dosis</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Glucosa Actual (mg/dL)</label>
