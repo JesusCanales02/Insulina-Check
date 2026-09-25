@@ -1,87 +1,149 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import IobBadge from './components/IobBadge';
 import CalculatorCard from './components/CalculatorCard';
-import FoodGuideCard from './components/FoodGuideCard';
 import HistoryCard from './components/HistoryCard';
+import ReminderCard from './components/ReminderCard';
+import FoodGuideCard from './components/FoodGuideCard';
+
+const registrosIniciales = [
+  {
+    id: 1,
+    glucosa: 140,
+    carbos: 45,
+    dosis: 4.5,
+    fecha: new Date(Date.now() - 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  },
+  {
+    id: 2,
+    glucosa: 210,
+    carbos: 60,
+    dosis: 7.2,
+    fecha: new Date(Date.now() - 5 * 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+];
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [insulinaActivaIOB] = useState(1.5);
+  const glucosaInputRef = useRef(null);
+  const [vistaActual, setVistaActual] = useState('dashboard');
   const [resultado, setResultado] = useState(null);
-  const [carbosSeleccionados, setCarbosSeleccionados] = useState('');
+  const [carbosSeleccionados, setCarbosSeleccionados] = useState(null);
 
-  const [historial, setHistorial] = useState([
-    { id: 1, fecha: '10:30 AM', glucosa: 140, carbos: 45, dosis: 4.5, alerta: false },
-    { id: 2, fecha: '08:00 AM', glucosa: 65, carbos: 30, dosis: 0, alerta: true },
-    { id: 3, fecha: 'Ayer 08:30 PM', glucosa: 190, carbos: 60, dosis: 7.3, alerta: false }
-  ]);
+  const [historial, setHistorial] = useState(() => {
+    const guardado = localStorage.getItem('historial_clinico');
+    return guardado ? JSON.parse(guardado) : registrosIniciales;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('historial_clinico', JSON.stringify(historial));
+  }, [historial]);
+
+  const calcularInsulinaActiva = () => {
+    if (!historial || historial.length === 0) return '0.0';
+
+    const ultimoRegistro = historial[0];
+    if (!ultimoRegistro || !ultimoRegistro.dosis) return '0.0';
+
+    const horaTexto = ultimoRegistro.fecha || ultimoRegistro.hora;
+    if (!horaTexto) return '0.0';
+
+    const [horas, minutos] = horaTexto.split(':');
+    const horaRegistro = new Date();
+    horaRegistro.setHours(parseInt(horas, 10), parseInt(minutos, 10), 0);
+
+    const ahora = new Date();
+    let diffMinutos = (ahora - horaRegistro) / (1000 * 60);
+
+    if (diffMinutos < 0) diffMinutos += 24 * 60;
+
+    const DURACION_INSULINA_MINUTOS = 6 * 60;
+
+    if (diffMinutos >= DURACION_INSULINA_MINUTOS) {
+      return '0.0';
+    }
+
+    const proporcionRestante = (DURACION_INSULINA_MINUTOS - diffMinutos) / DURACION_INSULINA_MINUTOS;
+    const insulinaActiva = parseFloat(ultimoRegistro.dosis) * proporcionRestante;
+
+    return insulinaActiva.toFixed(1);
+  };
 
   const handleCalculate = (glucosa, carbohidratos) => {
-    const boloComida = carbohidratos / 10;
-    const boloCorreccion = glucosa > 100 ? (glucosa - 100) / 50 : 0;
-    const correccionAjustada = Math.max(0, boloCorreccion - insulinaActivaIOB);
-    const dosisFinal = (boloComida + correccionAjustada).toFixed(1);
+    const ratioCarbo = 10;
+    const factorSensibilidad = 50;
+    const metaGlucosa = 100;
 
-    let alerta = false;
+    let dosis = 0;
+    if (glucosa > metaGlucosa) {
+      dosis += (glucosa - metaGlucosa) / factorSensibilidad;
+    }
+    dosis += carbohidratos / ratioCarbo;
+
+    const iobActual = parseFloat(calcularInsulinaActiva());
+    dosis = Math.max(0, dosis - iobActual);
+
+    const dosisCalculada = dosis.toFixed(1);
+
     let tipoAlerta = 'success';
-    let mensaje = "Dosis calculada dentro de parámetros normales.";
+    let mensaje = 'Glucosa en nivel normal.';
 
-    if (glucosa < 70) {
-      alerta = true;
+    if (glucosa > 180) {
       tipoAlerta = 'danger';
-      mensaje = "¡Alerta de Hipoglucemia! Consuma 15g de carbohidratos antes de aplicar insulina.";
-    } else if (dosisFinal > 15) {
-      alerta = true;
+      mensaje = 'Glucosa alta. Se ajustó la dosis restando la insulina que sigue activa.';
+    } else if (glucosa < 70) {
       tipoAlerta = 'warning';
-      mensaje = `Atención: La dosis calculada (${dosisFinal} U) supera el límite máximo por toma (15 U).`;
+      mensaje = 'Glucosa baja. Consume alimentos con carbohidratos rápido.';
     }
 
     setResultado({
-      dosisCalculada: dosisFinal,
-      alerta,
+      dosisCalculada,
       tipoAlerta,
-      mensaje,
-      iobRestada: insulinaActivaIOB
+      mensaje
     });
 
-    setHistorial([
-      {
-        id: Date.now(),
-        fecha: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        glucosa,
-        carbos: carbohidratos,
-        dosis: dosisFinal,
-        alerta
-      },
-      ...historial
-    ]);
+    const nuevoRegistro = {
+      id: Date.now(),
+      glucosa,
+      carbos: carbohidratos,
+      dosis: dosisCalculada,
+      fecha: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setHistorial([nuevoRegistro, ...historial]);
   };
 
-  const handleSelectCarbosFromGuide = (carbos) => {
-    setCarbosSeleccionados(carbos);
+  const handleFocusGlucosa = () => {
+    if (glucosaInputRef.current) {
+      glucosaInputRef.current.focus();
+      glucosaInputRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <div className="container">
-      <Navbar currentView={currentView} setCurrentView={setCurrentView} />
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '1.5rem' }}>
+      <Navbar currentView={vistaActual} setCurrentView={setVistaActual} />
 
-      {currentView === 'dashboard' && (
+      <IobBadge iob={calcularInsulinaActiva()} />
+
+      {vistaActual === 'dashboard' ? (
         <>
-          <IobBadge iob={insulinaActivaIOB} />
-          <div className="grid-layout">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
             <CalculatorCard 
               onCalculate={handleCalculate} 
               result={resultado} 
               initialCarbos={carbosSeleccionados}
+              glucosaInputRef={glucosaInputRef}
             />
-            <FoodGuideCard onSelectCarbos={handleSelectCarbosFromGuide} />
-            <HistoryCard historial={historial.slice(0, 4)} />
+            <FoodGuideCard 
+              onSendCarbos={(carbos) => setCarbosSeleccionados({ valor: carbos, id: Date.now() })} 
+            />
+          </div>
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <ReminderCard onFocusGlucosa={handleFocusGlucosa} />
           </div>
         </>
-      )}
-
-      {currentView === 'history' && (
+      ) : (
         <HistoryCard historial={historial} fullView={true} />
       )}
     </div>

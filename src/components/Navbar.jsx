@@ -4,15 +4,14 @@ export default function Navbar({ currentView, setCurrentView }) {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <h1>InsuliCheck Care+</h1>
-        <small>Plataforma Clínica de Seguridad</small>
+        <h1>Insulina Check</h1>
       </div>
       <div className="nav-buttons">
         <button
           className={`nav-btn ${currentView === 'dashboard' ? 'active' : ''}`}
           onClick={() => setCurrentView('dashboard')}
         >
-          Dashboard
+          Inicio
         </button>
         <button
           className={`nav-btn ${currentView === 'history' ? 'active' : ''}`}

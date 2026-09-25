@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import './CalculatorCard.css';
 
-export default function CalculatorCard({ onCalculate, result, initialCarbos }) {
+export default function CalculatorCard({ onCalculate, result, initialCarbos, glucosaInputRef }) {
   const [glucosa, setGlucosa] = useState('');
   const [carbohidratos, setCarbohidratos] = useState('');
 
+  // Sincroniza cada vez que initialCarbos cambie (usando el id único)
   useEffect(() => {
-    if (initialCarbos) {
-      setCarbohidratos(initialCarbos);
+    if (initialCarbos && initialCarbos.valor !== undefined) {
+      setCarbohidratos(String(initialCarbos.valor));
     }
   }, [initialCarbos]);
 
@@ -18,14 +19,15 @@ export default function CalculatorCard({ onCalculate, result, initialCarbos }) {
 
   return (
     <div className="card">
-      <h2 className="card-title">🩺 Calculadora de Dosis</h2>
+      <h2 className="card-title">Calcular Dosis</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Glucosa Actual (mg/dL)</label>
+          <label>Glucosa actual (mg/dL)</label>
           <input
+            ref={glucosaInputRef}
             type="number"
             className="form-input"
-            placeholder="Ej. 135"
+            placeholder="Ej. 120"
             value={glucosa}
             onChange={(e) => setGlucosa(e.target.value)}
             required
@@ -33,11 +35,11 @@ export default function CalculatorCard({ onCalculate, result, initialCarbos }) {
         </div>
 
         <div className="form-group">
-          <label>Carbohidratos a consumir (g)</label>
+          <label>Carbohidratos (g)</label>
           <input
             type="number"
             className="form-input"
-            placeholder="Ej. 40"
+            placeholder="Ej. 30"
             value={carbohidratos}
             onChange={(e) => setCarbohidratos(e.target.value)}
             required
@@ -45,19 +47,19 @@ export default function CalculatorCard({ onCalculate, result, initialCarbos }) {
         </div>
 
         <button type="submit" className="btn-primary">
-          Calcular Dosis Segura
+          Calcular Dosis
         </button>
       </form>
 
       {result && (
         <div className={`alert-box alert-${result.tipoAlerta}`}>
           <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>
-            Dosis Sugerida: {result.dosisCalculada} U
+            Dosis sugerida: {result.dosisCalculada} U
           </div>
           <div>{result.mensaje}</div>
           {result.iobRestada > 0 && (
-            <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', opacity: 0.9 }}>
-              * Se restaron {result.iobRestada} U de Insulina Activa (IOB) para evitar apilamiento.
+            <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', opacity: 0.85 }}>
+              * Se restaron {result.iobRestada} U de insulina activa.
             </div>
           )}
         </div>

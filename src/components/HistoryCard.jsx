@@ -1,17 +1,19 @@
 import './HistoryCard.css';
 
-export default function HistoryCard({ historial, fullView = false }) {
+export default function HistoryCard({ historial = [], fullView = false }) {
+  const lista = Array.isArray(historial) ? historial : [];
+
   return (
     <div className="card">
       <div className="history-controls">
-        <h2 className="card-title" style={{ margin: 0 }}>📊 Historial Clínico</h2>
-        <small style={{ color: 'var(--text-muted)' }}>{historial.length} registros</small>
+        <h2 className="card-title" style={{ margin: 0 }}>Historial Clínico</h2>
+        <small style={{ color: 'var(--text-muted)' }}>{lista.length} registros</small>
       </div>
 
-      {historial.length === 0 ? (
+      {lista.length === 0 ? (
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No hay registros almacenados.</p>
       ) : (
-        historial.map((item) => {
+        lista.map((item, index) => {
           let badgeClass = 'normal';
           let badgeText = 'Correcto';
 
@@ -24,7 +26,7 @@ export default function HistoryCard({ historial, fullView = false }) {
           }
 
           return (
-            <div key={item.id} className="history-card-item">
+            <div key={item.id || index} className="history-card-item">
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
                   <span className={`badge-status ${badgeClass}`}>{badgeText}</span>
@@ -35,7 +37,7 @@ export default function HistoryCard({ historial, fullView = false }) {
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div className="dose-number">{item.dosis} U</div>
+                <div className="dose-number">{item.dosis} Unidades</div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Dosis Sugerida</div>
               </div>
             </div>
