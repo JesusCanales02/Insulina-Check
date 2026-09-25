@@ -7,7 +7,7 @@ Insulina Check es una aplicacion web para ayudar a personas con diabetes a calcu
 * Calculadora de dosis de insulina basada en glucosa actual y carbohidratos.
 * Control de insulina activa para evitar acumulacion de dosis.
 * Guia de alimentos para sumar carbohidratos de forma sencilla.
-* Historial de registros guardados en el navegador.
+* Historial de registros.
 * Recordatorios de rutinas de salud.
 
 ## Tecnologias
