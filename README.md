@@ -13,8 +13,7 @@ Insulina Check es una aplicacion web para ayudar a personas con diabetes a calcu
 ## Tecnologias
 
 * React.js
-* JavaScript (ES6+)
+* JavaScript 
 * CSS3
-* LocalStorage API
 
   <img width="903" height="488" alt="insu-3" src="https://github.com/user-attachments/assets/8a77d499-c85c-4bd1-9f6c-6b81819b6218" />
