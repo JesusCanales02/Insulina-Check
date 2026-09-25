@@ -1,0 +1,18 @@
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-dose {
+  font-weight: bold;
+}
+
+.history-dose.safe {
+  color: #10b981;
+}
+
+.history-dose.alert {
+  color: #ef4444;
+}
