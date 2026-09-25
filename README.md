@@ -1,16 +1,20 @@
-# React + Vite
+# Insulina Check - Control de Insulina y Glucosa
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Insulina Check es una aplicacion web para ayudar a personas con diabetes a calcular sus dosis de insulina, llevar un conteo de carbohidratos y mantener un registro de sus mediciones.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+* Calculadora de dosis de insulina basada en glucosa actual y carbohidratos.
+* Control de insulina activa (IOB) para evitar acumulacion de dosis.
+* Guia de alimentos para sumar carbohidratos de forma sencilla.
+* Historial de registros guardados en el navegador.
+* Recordatorios de rutinas de salud.
 
-## React Compiler
+## Tecnologias
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* React.js
+* JavaScript (ES6+)
+* CSS3
+* LocalStorage API
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+  <img width="903" height="488" alt="insu-3" src="https://github.com/user-attachments/assets/8a77d499-c85c-4bd1-9f6c-6b81819b6218" />
